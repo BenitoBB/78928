@@ -1,12 +1,12 @@
-from flask import Flask
+from flask import Flask, jsonify, Response
 
 app = Flask(__name__)
 
-@app.route('/saludar') #lo vuelve aplicacion web
+@app.route('/saludar')
 def hola_mundo():
     return 'Hola Mundo!'
 
-@app.route('/despedir') #otro tipo de ruta o "directorio"
+@app.route('/despedir')
 def adios_mundo():
     return 'Adios Mundo!'
 
@@ -15,12 +15,17 @@ def hola_html():
     return '<h1 style="color:red">HOLA</h1>'
 
 @app.route('/json')
-def algo():
-    return '{"nombre":"benito"}'
+def json_response():
+    return jsonify({"nombre": "Benito"})
 
 @app.route('/xml')
-def xml():
-    return '<?xml version="1.0"?>  <nombre>Benito</nombre>'
+def xml_response():
+    xml = '''<?xml version="1.0" encoding="UTF-8"?>
+    <persona>
+        <nombre>Benito</nombre>
+        <apellido>Camelo</apellido>
+    </persona>'''
+    return Response(xml, mimetype='application/xml')
 
 if __name__ == '__main__':
-    app.run(host = '0.0.0.0', debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)

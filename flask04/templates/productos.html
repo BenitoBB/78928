@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Productos</title>
+    </head>
+    
+    <body>
+        <h1>Productos De Informática</h1>
+        <ul>
+            {% for producto in productos%}
+                <li>{{ producto['nombre'] }}: ${{ producto['precio']}}</li>
+            {% endfor%}
+        </ul>
+
+        <a href="/editar/{{ producto['id']}}">Editar</a>
+        <a href="/eliminar/{{ producto['id']}}" onclick="return confirm">Eliminar</a>
+    </body>
+</html>
