@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Editar Producto</title>
+    </head>
+    
+    <body>
+        <h1>Edición De Productos De Informática</h1>
+
+        <form action="/guardar" method="POST">
+            <label for="nombre">Nombre:</label>
+            <input type="text" id="nombre" name="nombre" value="{{ producto['nombre'] }}"> 
+            <br>
+            <label for="precio">Precio:</label>
+            <input type="number" id="precio" name="precio" value="{{ producto['precio'] }}" required>
+            <input type="hidden" name="id" value="{{ producto['id'] }}"> <!-- le pasamos le ID de forma oculta -->
+            <br>
+            <input type="submit" value="Guardar">
+        </form>
+    </body>
+</html>
