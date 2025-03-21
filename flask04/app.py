@@ -1,7 +1,5 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, Response, redirect, url_for
 from producto import Producto
-from flask import request
-from flask import Response
 
 app = Flask(__name__)
 
@@ -26,20 +24,30 @@ def guardar():
     i = 0
     for e in productos:
         if e.nombre == n:
-            productos[i].precio = Producto(n, p)
+            productos[i].precio = p
             print (f"{e.nombre} {e.precio}")
         i += 1  
     return Response("guardado", headers={'Location': '/'}, status=302)
 
 
-@app.route('/eliminar/<nombre>', methods=['POST'])
+@app.route('/eliminar/<nombre>')
 def eliminar(nombre):
-    global productos
-    # Filtrar la lista para eliminar el producto con el nombre especificado
-    productos = [p for p in productos if p.nombre != nombre]
-    print(f"Producto eliminado: {nombre}")
+    i = 0
+    for e in productos:
+        if e.nombre == nombre:
+            productos.pop(i)
+            print (f"{e.nombre} {e.precio}")
+        i += 1
     return Response("Eliminado", headers={'Location': '/'}, status=302)
 
+@app.route('/agregar', methods=['POST'])
+def agregar():
+    nombre = request.form.get('nombre')
+    precio = request.form.get('precio')
+    productos.append(Producto(nombre, precio))
+    return redirect(url_for('index')) 
+    # Es una redireccion a la pagina principal
+    # index es porque renderiza otra vez la pagina principal
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
