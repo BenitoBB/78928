@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Hola</title>
+    <!-- Incluir la biblioteca Paho MQTT -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+</head>
+<body>
+    <h2>Hola</h2>
+    <button onclick="enviarMensaje()">Enviar mensaje</button>
+    <script>
+        // Crear una instancia del cliente MQTT
+        const client = new Paho.MQTT.Client("localhost", Number(80), "clientId");
+
+
+        // Conectar al servidor MQTT
+        client.connect({
+            onSuccess: function () {
+                console.log("Conexión exitosa al servidor MQTT");
+                client.subscribe("World"); // Suscribirse al tema
+            },
+            onFailure: function (error) {
+                console.error("Error al conectar al servidor MQTT:", error.errorMessage);
+            },
+            timeout: 10 // Aumentar el tiempo de espera
+        });
+
+        // Función para enviar un mensaje
+        function enviarMensaje() {
+            if (client.isConnected()) {
+                const mensaje = new Paho.MQTT.Message("Hola desde el botón");
+                mensaje.destinationName = "World";
+                client.send(mensaje);
+                console.log("Mensaje enviado: Hola desde el botón");
+            } else {
+                console.error("El cliente MQTT no está conectado. No se puede enviar el mensaje.");
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chat 3 - Interpreta JSON/XML</title>
+  <style>
+    body { font-family: sans-serif; background: #f0f0f0; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+    #chat { width: 400px; height: 300px; overflow-y: auto; background: white; border: 1px solid #ccc; border-radius: 8px; padding: 10px; margin-bottom: 10px; }
+    .msg { margin: 6px; padding: 10px; border-radius: 10px; white-space: pre-wrap; word-wrap: break-word; }
+    .self { background: #d1e7dd; text-align: right; color: #155724; }
+    .other { background: #f8d7da; text-align: left; color: #721c24; }
+    #inputArea { display: flex; width: 400px; gap: 8px; }
+    input { flex: 1; padding: 8px; border-radius: 5px; border: 1px solid #aaa; }
+    button { padding: 8px 12px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    button:hover { background: #0056b3; }
+  </style>
+</head>
+<body>
+  <h3>Chat 3 (Participante A)</h3>
+  <div id="chat"></div>
+  <div id="inputArea">
+    <input type="text" id="mensajeInput" placeholder='{"msg":"Hola"} o <msg>Hola</msg>' />
+    <button onclick="enviarMensaje()">Enviar</button>
+  </div>
+
+  <script>
+    const chat = document.getElementById("chat");
+    const input = document.getElementById("mensajeInput");
+
+    function interpretarMensaje(texto) {
+      // Si es JSON válido
+      try {
+        const obj = JSON.parse(texto);
+        return Object.entries(obj).map(([k, v]) => `${k}: ${v}`).join("\n");
+      } catch {}
+
+      // Si es XML válido
+      try {
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(texto, "application/xml");
+        if (xmlDoc.getElementsByTagName("parsererror").length > 0) throw "Invalid XML";
+        const nodes = xmlDoc.children[0].children;
+        return [...nodes].map(n => `${n.tagName}: ${n.textContent}`).join("\n") || 
+               `${xmlDoc.documentElement.tagName}: ${xmlDoc.documentElement.textContent}`;
+      } catch {}
+
+      // Si no es válido JSON ni XML
+      return texto;
+    }
+
+    function mostrarMensaje(texto, tipo) {
+      const msg = document.createElement("div");
+      msg.classList.add("msg", tipo);
+      msg.textContent = interpretarMensaje(texto);
+      chat.appendChild(msg);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function enviarMensaje() {
+      const texto = input.value.trim();
+      if (!texto) return;
+      mostrarMensaje(texto, "self");
+      localStorage.setItem("mensaje_chat3", texto);
+      input.value = "";
+    }
+
+    // Función alternativa: enviar sin interpretar (mostrar crudo)
+    /*
+    function enviarMensajeSinInterpretar() {
+      const texto = input.value.trim();
+      if (!texto) return;
+      const msg = document.createElement("div");
+      msg.classList.add("msg", "self");
+      msg.textContent = texto; // sin interpretar
+      chat.appendChild(msg);
+      chat.scrollTop = chat.scrollHeight;
+      localStorage.setItem("mensaje_chat3", texto);
+      input.value = "";
+    }
+    */
+
+    // Escuchar mensaje de chat4
+    window.addEventListener("storage", () => {
+      const recibido = localStorage.getItem("mensaje_chat4");
+      if (recibido) {
+        mostrarMensaje(recibido, "other");
+        localStorage.removeItem("mensaje_chat4");
+      }
+    });
+  </script>
+</body>
+</html>
