@@ -1,0 +1,70 @@
+<!-- grupoB.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Grupo B - 100 Mexicanos Dijeron</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+  <style>
+    body { font-family: sans-serif; background: #f0f0f0; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+    #pregunta { width: 400px; min-height: 40px; background: #fff; border: 1px solid #ccc; border-radius: 8px; padding: 10px; margin-bottom: 10px; }
+    #respuestaArea { display: flex; width: 400px; gap: 8px; }
+    input, button { padding: 8px; border-radius: 5px; border: 1px solid #aaa; }
+    button { background: #dc3545; color: white; border: none; cursor: pointer; }
+    button:hover { background: #a71d2a; }
+    #puntaje { margin-top: 10px; font-size: 1.2em; }
+  </style>
+</head>
+<body>
+  <h2>Grupo B</h2>
+  <div id="pregunta">Esperando pregunta...</div>
+  <div id="respuestaArea">
+    <input type="text" id="respuestaInput" placeholder="Tu respuesta..." />
+    <button onclick="enviarRespuesta()">Enviar Respuesta</button>
+  </div>
+  <div id="puntaje">Puntaje: 0</div>
+
+  <script>
+    const preguntaDiv = document.getElementById("pregunta");
+    const respuestaInput = document.getElementById("respuestaInput");
+    const puntajeDiv = document.getElementById("puntaje");
+    const grupo = "B";
+    const clientId = "grupoB_" + Math.random().toString(16).slice(2);
+    const client = new Paho.MQTT.Client("localhost", 9001, "/", clientId);
+
+    client.onConnectionLost = (resp) => {
+      console.error("Conexión perdida:", resp.errorMessage);
+    };
+
+    client.onMessageArrived = (message) => {
+      if (message.destinationName === "juego/pregunta") {
+        preguntaDiv.textContent = message.payloadString;
+        console.log("[Pregunta recibida]", message.payloadString);
+      } else if (message.destinationName === "juego/puntaje") {
+        const datos = JSON.parse(message.payloadString);
+        puntajeDiv.textContent = "Puntaje: " + datos.B;
+      }
+    };
+
+    client.connect({
+      onSuccess: () => {
+        client.subscribe("juego/pregunta");
+        client.subscribe("juego/puntaje");
+      },
+      onFailure: (err) => {
+        alert("No se pudo conectar al broker MQTT");
+      }
+    });
+
+    function enviarRespuesta() {
+      const texto = respuestaInput.value.trim();
+      if (!texto || !client.isConnected()) return;
+      const msg = new Paho.MQTT.Message(texto);
+      msg.destinationName = "juego/respuesta/B";
+      client.send(msg);
+      respuestaInput.value = "";
+      console.log("[Grupo B] Respuesta enviada:", texto);
+    }
+  </script>
+</body>
+</html>
