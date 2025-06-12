@@ -16,3 +16,6 @@
 [submodule "springboot"]
 	path = springboot
 	url = https://github.com/BenitoBB/springboot.git
+[submodule "proyectoWeb"]
+	path = proyectoWeb
+	url = https://github.com/BenitoBB/proyectoWeb
